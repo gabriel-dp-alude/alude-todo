@@ -1,11 +1,42 @@
 services:
-  server:
-    container_name: server
-    build: ./server
+  database:
+    container_name: alude-todo-database
+    image: postgres:15-alpine
+    restart: unless-stopped
+    env_file:
+      - ./database/.env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${POSTGRES_DB:-alude_todo_database}
     ports:
-      - "8000:8000"
+      - "${DATABASE_PORT:-5432}:5432"
     volumes:
-      - ./server:/app
+      - ./database/data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-user} -d ${POSTGRES_DB:-alude_todo_database}"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  server:
+    container_name: alude-todo-server
+    build: ./server
+    restart: unless-stopped
     env_file:
       - ./server/.env
-    restart: unless-stopped
+    ports:
+      - "${PORT:-8000}:8000"
+    volumes:
+      - ./server:/app
+    depends_on:
+      database:
+        condition: service_healthy
+    command: >
+      hypercorn "app.main:create_app()"
+      --bind 0.0.0.0:8000
+      --reload

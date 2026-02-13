@@ -9,6 +9,7 @@ license = "Unlicense"
 python = ">=3.10"
 quart = ">=0.20.0,<0.21.0"
 python-dotenv = "^1.2.1"
+hypercorn = "^0.18.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = ">=9.0.2,<10.0.0"

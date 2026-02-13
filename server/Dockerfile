@@ -24,4 +24,4 @@ COPY . .
 EXPOSE 8000
 
 # Default command
-CMD ["python", "-m", "quart", "--app", "app.main:create_app", "run", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["hypercorn", "app.main:create_app", "--factory", "--bind", "0.0.0.0:8000"]
