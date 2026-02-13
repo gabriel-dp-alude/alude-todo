@@ -23,6 +23,26 @@ services:
       timeout: 5s
       retries: 5
 
+  liquibase:
+    container_name: alude-todo-liquibase
+    image: liquibase/liquibase:5.0
+    restart: no
+    env_file:
+      - ./database/.env
+    depends_on:
+      database:
+        condition: service_healthy
+    volumes:
+      - ./database/changelog:/liquibase/changelog
+      - ./database/drivers:/liquibase/drivers
+    command:
+      --classpath=/liquibase/drivers/postgresql.jar
+      --url=jdbc:postgresql://database:${DATABASE_PORT:-5432}/${POSTGRES_DB:-alude_todo_database}
+      --username=${POSTGRES_USER:-user}
+      --password=${POSTGRES_PASSWORD:-password}
+      --changeLogFile=changelog.xml
+      update
+
   server:
     container_name: alude-todo-server
     build: ./server
@@ -34,8 +54,8 @@ services:
     volumes:
       - ./server:/app
     depends_on:
-      database:
-        condition: service_healthy
+      liquibase:
+        condition: service_completed_successfully
     command: >
       hypercorn "app.main:create_app()"
       --bind 0.0.0.0:8000

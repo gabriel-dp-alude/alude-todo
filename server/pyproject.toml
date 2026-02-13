@@ -4,12 +4,16 @@ version = "0.1.0"
 description = "Alude's welcome project server"
 authors = ["Gabriel de Paula"]
 license = "Unlicense"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = ">=3.10"
 quart = ">=0.20.0,<0.21.0"
 python-dotenv = "^1.2.1"
 hypercorn = "^0.18.0"
+sqlalchemy = "^2.0.46"
+pydantic = "^2.12.5"
+asyncpg = "^0.31.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = ">=9.0.2,<10.0.0"
