@@ -22,6 +22,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+      start_interval: 0s
+      start_period: 0s
 
   liquibase:
     container_name: alude-todo-liquibase
@@ -41,6 +43,7 @@ services:
       --username=${POSTGRES_USER:-user}
       --password=${POSTGRES_PASSWORD:-password}
       --changeLogFile=changelog.xml
+      --show-banner false
       update
 
   server:
