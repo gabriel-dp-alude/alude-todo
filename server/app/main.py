@@ -7,6 +7,7 @@ from .modules.user.user_route import bp as users_bp
 
 load_dotenv()
 
+
 def create_app():
     app = Quart(__name__)
 
