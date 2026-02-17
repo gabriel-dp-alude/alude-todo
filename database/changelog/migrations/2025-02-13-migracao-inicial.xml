@@ -1,21 +1,108 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog
-    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="
-       http://www.liquibase.org/xml/ns/dbchangelog
-       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+           http://www.liquibase.org/xml/ns/dbchangelog
+           http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
-    <changeSet id="1" author="you">
-        <createTable tableName="user">
-            <column name="id" type="SERIAL">
-                <constraints primaryKey="true"/>
+    <!-- ========================= -->
+    <!-- USERS TABLE -->
+    <!-- ========================= -->
+    <changeSet id="1-create-users" author="yourname">
+        <createTable tableName="users">
+            <column name="id_user" type="INT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="name" type="VARCHAR(100)"/>
-            <column name="email" type="VARCHAR(150)">
-                <constraints unique="true"/>
+
+            <column name="username" type="VARCHAR(100)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+
+            <column name="password_hash" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_at" type="TIMESTAMP"
+                    defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
             </column>
         </createTable>
+    </changeSet>
+
+    <!-- ========================= -->
+    <!-- TASKS TABLE -->
+    <!-- ========================= -->
+    <changeSet id="2-create-tasks" author="yourname">
+        <createTable tableName="tasks">
+            <column name="id_task" type="INT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="title" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="id_user" type="INT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="done" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_at" type="TIMESTAMP"
+                    defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="tasks"
+                baseColumnNames="id_user"
+                constraintName="fk_tasks_users"
+                referencedTableName="users"
+                referencedColumnNames="id_user"/>
+    </changeSet>
+
+    <!-- ========================= -->
+    <!-- SUBTASKS TABLE -->
+    <!-- ========================= -->
+    <changeSet id="3-create-subtasks" author="yourname">
+        <createTable tableName="subtasks">
+            <column name="id_subtask" type="INT" autoIncrement="true">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="id_task" type="INT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="title" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="done" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_at" type="TIMESTAMP"
+                    defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey
+                tableName="subtasks"
+                columnNames="id_subtask, id_task"
+                constraintName="pk_subtasks"/>
+
+        <addForeignKeyConstraint
+                baseTableName="subtasks"
+                baseColumnNames="id_task"
+                constraintName="fk_subtasks_tasks"
+                referencedTableName="tasks"
+                referencedColumnNames="id_task"/>
     </changeSet>
 
 </databaseChangeLog>

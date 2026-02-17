@@ -57,3 +57,5 @@ VS Code editor intellisense cannot have access to the installed libraries, so fo
 > ```bash
 > pip install poetry && poetry install
 > ```
+
+__Important__: Every time you update dependencies, rebuild the docker image with `--build` flag.

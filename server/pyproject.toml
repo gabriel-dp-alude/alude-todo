@@ -14,6 +14,7 @@ hypercorn = "^0.18.0"
 sqlalchemy = "^2.0.46"
 pydantic = {extras = ["email"], version = "^2.12.5"}
 asyncpg = "^0.31.0"
+bcrypt = "^5.0.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = ">=9.0.2,<10.0.0"
