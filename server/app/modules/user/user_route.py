@@ -1,13 +1,19 @@
 from quart import Blueprint, request, jsonify
+from quart_schema import tag, validate_request, validate_response
 
 from ...config.database import AsyncSessionLocal
 from . import user_service as UserService
 from . import user_model as UserModel
 
+
 bp = Blueprint("users", __name__, url_prefix="/users")
+USERS_TAG = ["Users"]
 
 
 @bp.post("/")
+@validate_request(UserModel.UserCreate)
+@validate_response(UserModel.UserRead, 201)
+@tag(USERS_TAG)
 async def create_user():
     data = await request.get_json()
     payload = UserModel.UserCreate(**data)
@@ -25,6 +31,8 @@ async def create_user():
 
 
 @bp.get("/")
+@validate_response(list[UserModel.UserRead], 200)
+@tag(USERS_TAG)
 async def list_users():
     async with AsyncSessionLocal() as session:
         users = await UserService.list_users(session)
@@ -34,6 +42,8 @@ async def list_users():
 
 
 @bp.get("/<int:user_id>")
+@validate_response(UserModel.UserRead, 200)
+@tag(USERS_TAG)
 async def get_user(user_id: int):
     async with AsyncSessionLocal() as session:
         try:
@@ -45,6 +55,9 @@ async def get_user(user_id: int):
 
 
 @bp.patch("/<int:user_id>")
+@validate_request(UserModel.UserUpdate)
+@validate_response(UserModel.UserRead, 200)
+@tag(USERS_TAG)
 async def update_user(user_id: int):
     data = await request.get_json()
     payload = UserModel.UserUpdate(**data)
@@ -61,6 +74,8 @@ async def update_user(user_id: int):
 
 
 @bp.delete("/<int:user_id>")
+@validate_response(UserModel.UserDelete, 204)
+@tag(USERS_TAG)
 async def delete_user(user_id: int):
     async with AsyncSessionLocal() as session:
         try:

@@ -40,6 +40,10 @@ class TaskUpdate(BaseModel):
     done: bool | None = None
 
 
+class TaskDelete(BaseModel):
+    pass
+
+
 class TaskRead(BaseModel):
     id_task: int
     title: str

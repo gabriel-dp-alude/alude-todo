@@ -35,6 +35,10 @@ class UserUpdate(BaseModel):
     password: str | None = Field(None, min_length=8)
 
 
+class UserDelete(BaseModel):
+    pass
+
+
 class UserRead(BaseModel):
     id_user: int
     username: str

@@ -57,3 +57,8 @@ class SessionRead(BaseModel):
     expires_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class Login(BaseModel):
+    username: str
+    password: str

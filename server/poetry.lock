@@ -882,6 +882,17 @@ files = [
 windows-terminal = ["colorama (>=0.4.6)"]
 
 [[package]]
+name = "pyhumps"
+version = "3.8.0"
+description = "🐫  Convert strings (and dictionary keys) between snake case, camel case and pascal case in Python. Inspired by Humps for Node"
+optional = false
+python-versions = "*"
+files = [
+    {file = "pyhumps-3.8.0-py3-none-any.whl", hash = "sha256:060e1954d9069f428232a1adda165db0b9d8dfdce1d265d36df7fbff540acfd6"},
+    {file = "pyhumps-3.8.0.tar.gz", hash = "sha256:498026258f7ee1a8e447c2e28526c0bea9407f9a59c03260aee4bd6c04d681a3"},
+]
+
+[[package]]
 name = "pytest"
 version = "9.0.2"
 description = "pytest: simple powerful testing with Python"
@@ -996,6 +1007,27 @@ werkzeug = ">=3.0"
 
 [package.extras]
 dotenv = ["python-dotenv"]
+
+[[package]]
+name = "quart-schema"
+version = "0.23.0"
+description = "A Quart extension to provide schema validation"
+optional = false
+python-versions = ">=3.10"
+files = [
+    {file = "quart_schema-0.23.0-py3-none-any.whl", hash = "sha256:f8f217942d433954dfe9860b4d748fe4b111836d8d74e06bc0afc512dd991c80"},
+    {file = "quart_schema-0.23.0.tar.gz", hash = "sha256:778f36aa80697420a0148807eb324b7d6ca1f10793cd1d0eb4f1c7908d860bdd"},
+]
+
+[package.dependencies]
+pyhumps = ">=1.6.1"
+quart = ">=0.19.0"
+typing_extensions = {version = "*", markers = "python_version < \"3.11\""}
+
+[package.extras]
+docs = ["docutils (==0.21)", "pydata_sphinx_theme", "sphinx-tabs (>=3.4.4)"]
+msgspec = ["msgspec (>=0.18)"]
+pydantic = ["pydantic (>=2)"]
 
 [[package]]
 name = "sqlalchemy"
@@ -1224,4 +1256,4 @@ h11 = ">=0.16.0,<1"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10"
-content-hash = "5b3194a1fe01d000896ab887f82e88665e8da127d3121ad648b74866cb1c4617"
+content-hash = "98b0608e547c651020e8bc23dbad9e9a15d62ecb514e3c054c7f6bfa0fea2956"

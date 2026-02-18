@@ -1,20 +1,27 @@
 from quart import Blueprint, request, jsonify, make_response
+from quart_schema import tag, validate_request, validate_response
 
 from ...config.database import AsyncSessionLocal
 from ...utils.auth import login_required, hash_token
 from . import auth_service as AuthService
+from . import auth_model as AuthModel
+
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
+AUTH_TAG = ["Auth"]
 
 
 @bp.post("/login")
+@validate_request(AuthModel.Login)
+@tag(AUTH_TAG)
 async def login_route():
     data = await request.get_json()
+    payload = AuthModel.Login(**data)
 
     async with AsyncSessionLocal() as session:
         try:
             token, user = await AuthService.login(
-                session, data["username"], data["password"]
+                session, payload.username, payload.password
             )
         except AuthService.InvalidCredentials:
             return jsonify({"error": "Invalid credentials"}), 401
@@ -34,6 +41,7 @@ async def login_route():
 
 
 @bp.post("/logout")
+@tag(AUTH_TAG)
 @login_required
 async def logout():
     token = request.cookies.get("session")

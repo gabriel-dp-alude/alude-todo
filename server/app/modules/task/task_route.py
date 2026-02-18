@@ -1,16 +1,21 @@
 from quart import Blueprint, request, jsonify
-
+from quart_schema import tag, validate_request, validate_response
 
 from ...config.database import AsyncSessionLocal
 from ...utils.auth import require_auth
 from . import task_model as TaskModel
 from . import task_service as TaskService
 
+
 bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 bp.before_request(require_auth)
+TASKS_TAG = ["Tasks"]
 
 
 @bp.post("/")
+@validate_request(TaskModel.TaskCreate)
+@validate_response(TaskModel.TaskRead, 201)
+@tag(TASKS_TAG)
 async def create_task():
     data = await request.get_json()
     payload = TaskModel.TaskCreate(**data)
@@ -25,6 +30,8 @@ async def create_task():
 
 
 @bp.get("/")
+@validate_response(list[TaskModel.TaskRead], 200)
+@tag(TASKS_TAG)
 async def list_user_tasks():
     async with AsyncSessionLocal() as session:
         tasks = await TaskService.list_user_tasks(session)
@@ -35,6 +42,8 @@ async def list_user_tasks():
 
 
 @bp.get("/<int:task_id>")
+@validate_response(TaskModel.TaskRead, 200)
+@tag(TASKS_TAG)
 async def get_task(task_id: int):
     async with AsyncSessionLocal() as session:
         try:
@@ -46,6 +55,9 @@ async def get_task(task_id: int):
 
 
 @bp.patch("/<int:task_id>")
+@validate_request(TaskModel.TaskUpdate)
+@validate_response(TaskModel.TaskRead, 200)
+@tag(TASKS_TAG)
 async def update_task(task_id: int):
     data = await request.get_json()
     payload = TaskModel.TaskUpdate(**data)
@@ -60,6 +72,8 @@ async def update_task(task_id: int):
 
 
 @bp.delete("/<int:task_id>")
+@validate_response(TaskModel.TaskDelete, 204)
+@tag(TASKS_TAG)
 async def delete_task(task_id: int):
     async with AsyncSessionLocal() as session:
         try:
