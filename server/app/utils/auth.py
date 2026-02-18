@@ -4,6 +4,8 @@ import hashlib
 from functools import wraps
 from quart import jsonify, g
 
+from app.utils.exceptions import APIException
+
 
 # PASSWORD management
 def generate_password_hash(password: str) -> str:
@@ -24,9 +26,17 @@ def hash_token(token: str) -> str:
 
 
 # LOGIN AUTH management
+class AuthRequired(APIException):
+    status_code = 401
+    error_code = "authentication_required"
+
+    def __init__(self):
+        super().__init__("Authentication required")
+
+
 async def require_auth():
     if not getattr(g, "current_user", None):
-        return jsonify({"error": "Authentication required"}), 401
+        raise AuthRequired()
 
 
 def login_required(fn):

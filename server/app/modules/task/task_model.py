@@ -3,8 +3,8 @@ from sqlalchemy import String, Boolean, DateTime, ForeignKey, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from pydantic import BaseModel, Field
 
-from ...config.database import Base
-from ..user.user_model import UserEntity
+from app.utils.database import Base
+from app.modules.user import user_model as UserModel
 
 
 class TaskEntity(Base):
@@ -19,7 +19,7 @@ class TaskEntity(Base):
         nullable=False,
         index=True,
     )
-    user: Mapped["UserEntity"] = relationship(backref="tasks")
+    user: Mapped["UserModel.UserEntity"] = relationship(backref="tasks")
 
     done: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 

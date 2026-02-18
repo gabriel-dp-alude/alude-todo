@@ -3,7 +3,7 @@ from sqlalchemy import String, DateTime, func
 from sqlalchemy.orm import Mapped, mapped_column
 from pydantic import BaseModel, Field
 
-from ...config.database import Base
+from app.utils.database import Base
 
 
 class UserEntity(Base):
@@ -42,6 +42,5 @@ class UserDelete(BaseModel):
 class UserRead(BaseModel):
     id_user: int
     username: str
-    password_hash: str
 
     model_config = {"from_attributes": True}

@@ -2,18 +2,29 @@ from datetime import datetime, timedelta
 from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ...utils.auth import generate_session_token, hash_token, verify_password
-from ..user.user_model import UserEntity
+from app.utils.auth import (
+    generate_session_token,
+    hash_token,
+    verify_password,
+)
+from app.utils.exceptions import APIException
+from app.modules.user import user_model as UserModel
 from .auth_model import Session
 
 
-class InvalidCredentials(Exception):
-    pass
+class InvalidCredentials(APIException):
+    status_code = 403
+    error_code = "invalid_credentials"
+
+    def __init__(self):
+        super().__init__("Invalid Credentials, check Username or Password")
 
 
 async def login(session: AsyncSession, username: str, password: str):
     result = await session.execute(
-        select(UserEntity).where(UserEntity.username == username)
+        select(UserModel.UserEntity).where(
+            UserModel.UserEntity.username == username
+        )
     )
     user = result.scalar_one_or_none()
 

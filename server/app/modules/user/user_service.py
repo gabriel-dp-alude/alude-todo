@@ -2,24 +2,33 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.utils.auth import generate_password_hash
+from app.utils.exceptions import APIException
 from . import user_model as UserModel
-from ...utils.auth import generate_password_hash
 
 
-class UserAlreadyExists(Exception):
-    pass
+class UsernameAlreadyExists(APIException):
+    status_code = 409
+    error_code = "username_already_exists"
+
+    def __init__(self):
+        super().__init__("Username already exists")
 
 
-class UserNotFound(Exception):
-    pass
+class UserNotFound(APIException):
+    status_code = 404
+    error_code = "user_not_found"
+
+    def __init__(self):
+        super().__init__("User not found")
 
 
 async def create_user(
-    session: AsyncSession, payload: UserModel.UserCreate
+    session: AsyncSession, data: UserModel.UserCreate
 ) -> UserModel.UserEntity:
     user = UserModel.UserEntity(
-        username=payload.username,
-        password_hash=generate_password_hash(payload.password),
+        username=data.username,
+        password_hash=generate_password_hash(data.password),
     )
 
     session.add(user)
@@ -28,7 +37,7 @@ async def create_user(
         await session.commit()
     except IntegrityError:
         await session.rollback()
-        raise UserAlreadyExists()
+        raise UsernameAlreadyExists()
 
     await session.refresh(user)
     return user
@@ -54,19 +63,20 @@ async def get_user(session: AsyncSession, user_id: int) -> UserModel.UserEntity:
 
 
 async def update_user(
-    session: AsyncSession, user_id: int, payload: UserModel.UserUpdate
+    session: AsyncSession, user_id: int, data: UserModel.UserUpdate
 ) -> UserModel.UserEntity:
     user = await get_user(session, user_id)
 
-    if payload.username is not None:
-        user.username = payload.username
-    if payload.password is not None:
-        user.password_hash = generate_password_hash(payload.password)
+    if data.username is not None:
+        user.username = data.username
+    if data.password is not None:
+        user.password_hash = generate_password_hash(data.password)
+
     try:
         await session.commit()
     except IntegrityError:
         await session.rollback()
-        raise UserAlreadyExists()
+        raise UsernameAlreadyExists()
 
     await session.refresh(user)
     return user

@@ -3,8 +3,8 @@ from sqlalchemy import String, DateTime, ForeignKey, func, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from pydantic import BaseModel
 
-from ...config.database import Base
-from ..user.user_model import UserEntity
+from app.utils.database import Base
+from app.modules.user.user_model import UserEntity
 
 
 class Session(Base):

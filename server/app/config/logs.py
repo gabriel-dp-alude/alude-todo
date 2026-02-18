@@ -1,9 +1,9 @@
 import logging
 import time
-from quart import request
+from quart import Quart, request
 
 
-def configure_logs(app):
+def configure_logs(app: Quart):
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s.%(msecs)03d | %(levelname)s | %(message)s",

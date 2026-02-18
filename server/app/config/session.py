@@ -1,14 +1,14 @@
-from quart import g, request
+from quart import Quart, g, request
 from sqlalchemy import select
 from datetime import datetime
 
-from .database import AsyncSessionLocal
-from ..utils.auth import hash_token
-from ..modules.user.user_model import UserEntity
-from ..modules.auth.auth_model import Session
+from app.utils.database import AsyncSessionLocal
+from app.utils.auth import hash_token
+from app.modules.user.user_model import UserEntity
+from app.modules.auth.auth_model import Session
 
 
-def configure_session_middleware(app):
+def configure_session_middleware(app: Quart):
     @app.before_request
     async def load_user():
         token = request.cookies.get("session")
