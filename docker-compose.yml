@@ -63,3 +63,20 @@ services:
       hypercorn "app.main:create_app()"
       --bind 0.0.0.0:8000
       --reload
+
+  client:
+    container_name: alude-todo-client
+    build: ./client
+    restart: unless-stopped
+    env_file:
+      - ./client/.env
+    ports: 
+      - "${CLIENT_PORT:-3000}:3000"
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - NODE_OPTIONS=--no-deprecation
+    depends_on:
+      - server
