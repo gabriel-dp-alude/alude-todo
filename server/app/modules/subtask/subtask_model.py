@@ -23,7 +23,9 @@ class SubtaskEntity(Base):
         nullable=False,
         primary_key=True,
     )
-    task: Mapped["TaskModel.TaskEntity"] = relationship(backref="subtasks")
+    task: Mapped["TaskModel.TaskEntity"] = relationship(
+        back_populates="subtasks"
+    )
 
     title: Mapped[str] = mapped_column(String(100), nullable=False)
 
@@ -44,10 +46,6 @@ class SubtaskCreate(BaseModel):
 class SubtaskUpdate(BaseModel):
     title: str | None = Field(None, min_length=1, max_length=100)
     done: bool | None = None
-
-
-class SubtaskDelete(BaseModel):
-    pass
 
 
 class SubtaskRead(BaseModel):

@@ -2,7 +2,7 @@ import { Instance, SnapshotOrInstance, SnapshotOut, types } from "mobx-state-tre
 
 const SubtaskModel = types
   .model("Subtask", {
-    id: types.identifierNumber,
+    id_subtask: types.identifierNumber,
     title: types.string,
     done: types.boolean,
   })

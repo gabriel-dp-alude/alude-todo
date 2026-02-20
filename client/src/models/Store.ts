@@ -1,7 +1,7 @@
 import { cast, flow, Instance, types } from "mobx-state-tree";
 
 import { Task, TaskModel } from "./Task";
-import { apiRequest } from "../util/api";
+import { apiRequest } from "../utils/api";
 
 export const TodoStore = types
   .model("TodoStore", {
@@ -18,9 +18,6 @@ export const TodoStore = types
     },
   }))
   .actions((self) => ({
-    setIsLoading: (isLoading: boolean) => {
-      self.isLoading = isLoading;
-    },
     setError: (error: any) => {
       self.error = error;
     },
@@ -29,7 +26,6 @@ export const TodoStore = types
     const load = flow(function* load() {
       self.isLoading = true;
       self.error = null;
-
       const tasks: Task[] = yield apiRequest<Task[]>(
         `/tasks`,
         {},
@@ -47,9 +43,9 @@ export const TodoStore = types
         `/tasks`,
         {
           method: "POST",
-          body: JSON.stringify({
+          body: {
             title,
-          }),
+          },
         },
         {
           onFail: (e) => {
@@ -68,14 +64,7 @@ let todoStore: TodoStoreInstance;
 export function useStore(): TodoStoreInstance {
   if (!todoStore) {
     todoStore = TodoStore.create({
-      tasks: [
-        {
-          id_task: 0,
-          title: "Example",
-          done: false,
-          created_at: new Date().toISOString(),
-        },
-      ],
+      tasks: [],
     });
   }
   return todoStore;

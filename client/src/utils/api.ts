@@ -6,18 +6,21 @@ type CallbackFunctions = {
 
 export async function apiRequest<T>(
   path: string,
-  options: RequestInit = {},
+  options: Omit<RequestInit, "body"> & { body?: object } = {},
   callbacks: CallbackFunctions = {},
 ): Promise<T | undefined> {
   try {
     const response = await fetch(`${API_URL}${path}`, {
-      credentials: "include",
       ...options,
+      body: JSON.stringify(options.body),
       headers: {
         "Content-Type": "application/json",
         ...options.headers,
       },
+      credentials: "include",
     });
+
+    console.log(response);
 
     if (!response.ok) {
       const message = await response.text();

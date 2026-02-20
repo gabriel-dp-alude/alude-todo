@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import List
 from sqlalchemy import String, Boolean, DateTime, ForeignKey, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from pydantic import BaseModel, Field
@@ -27,8 +28,14 @@ class TaskEntity(Base):
         DateTime, server_default=func.now(), nullable=False
     )
 
+    subtasks = relationship(
+        "SubtaskEntity",
+        back_populates="task",
+        order_by="SubtaskEntity.created_at",
+    )
+
     def __repr__(self) -> str:
-        return f"Task(id_task={self.id_task!r}, title={self.title!r}, user={self.id_user!r})"
+        return f"Task(id_task={self.id_task!r}, title={self.title!r}, user={self.id_user!r}), subtasks=(${len(self.subtasks)})"
 
 
 class TaskCreate(BaseModel):
@@ -40,8 +47,15 @@ class TaskUpdate(BaseModel):
     done: bool | None = None
 
 
-class TaskDelete(BaseModel):
-    pass
+# Duplicated due importing issue, it generates a circular dependency
+class SubtaskRead(BaseModel):
+    id_subtask: int
+    id_task: int
+    title: str
+    done: bool
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
 
 
 class TaskRead(BaseModel):
@@ -49,5 +63,6 @@ class TaskRead(BaseModel):
     title: str
     done: bool
     created_at: datetime
+    subtasks: List["SubtaskRead"] = []
 
     model_config = {"from_attributes": True}

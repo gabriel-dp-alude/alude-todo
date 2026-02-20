@@ -1,5 +1,6 @@
 from quart import g
-from sqlalchemy import select
+from sqlalchemy import desc, select
+from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.utils.exceptions import APIException
@@ -32,9 +33,10 @@ async def list_user_tasks(session: AsyncSession) -> list[TaskModel.TaskEntity]:
     current_id_user = g.current_user.id_user
 
     result = await session.execute(
-        select(TaskModel.TaskEntity).where(
-            TaskModel.TaskEntity.id_user == current_id_user
-        )
+        select(TaskModel.TaskEntity)
+        .options(selectinload(TaskModel.TaskEntity.subtasks))
+        .where(TaskModel.TaskEntity.id_user == current_id_user)
+        .order_by(desc(TaskModel.TaskEntity.created_at))
     )
     return result.scalars().all()
 
@@ -43,7 +45,9 @@ async def get_task(session: AsyncSession, task_id: int) -> TaskModel.TaskEntity:
     current_id_user = g.current_user.id_user
 
     result = await session.execute(
-        select(TaskModel.TaskEntity).where(
+        select(TaskModel.TaskEntity)
+        .options(selectinload(TaskModel.TaskEntity.subtasks))
+        .where(
             TaskModel.TaskEntity.id_task == task_id,
             TaskModel.TaskEntity.id_user == current_id_user,
         )

@@ -36,6 +36,6 @@ def configure_exception_handler(app: Quart):
         response = {
             "error": "internal_server_error",
             "message": "Something went wrong",
-            "details": error,
+            "details": str(error),
         }
         return jsonify(response), 500

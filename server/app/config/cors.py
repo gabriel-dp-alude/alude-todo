@@ -7,7 +7,7 @@ def configure_cors(app: Quart):
     cors(
         app,
         allow_origin=getenv("CORS_ORIGIN", "").split(","),
-        allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
         allow_headers=["Content-Type", "Authorization"],
         allow_credentials=True,
     )

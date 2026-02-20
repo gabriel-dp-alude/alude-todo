@@ -3,7 +3,7 @@ import { observer } from "mobx-react-lite";
 
 import { useStore } from "../../models/Store";
 import { TaskCard } from "../../components/TaskCard";
-import { apiRequest } from "../../util/api";
+import { apiRequest } from "../../utils/api";
 
 export const Home = observer(() => {
   const store = useStore();
@@ -14,10 +14,10 @@ export const Home = observer(() => {
     async function loginAndLoad() {
       await apiRequest(`/auth/login`, {
         method: "POST",
-        body: JSON.stringify({
+        body: {
           username: "rafael",
           password: "12345678",
-        }),
+        },
       });
       store.load();
     }
