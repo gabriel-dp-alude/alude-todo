@@ -26,8 +26,13 @@ export const Home = observer(() => {
 
   return (
     <div>
-      {todoStore.isLoading && "Loading..."}
-      {todoStore.error}
+      <div>
+        <p>
+          user: {authStore.user?.username} ({authStore.user?.id_user})
+        </p>
+        <p>state: {todoStore.isLoading ? "Loading..." : "Ok"}</p>
+        <p>error: {todoStore.error || "-"}</p>
+      </div>
       <form>
         <input type="text" ref={titleInputRef} />
         <button type="button" onClick={handleAddButton}>

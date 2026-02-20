@@ -1,9 +1,10 @@
 from quart import g
-from sqlalchemy import desc, select
+from sqlalchemy import desc, select, delete
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.utils.exceptions import APIException
+from app.modules.subtask import subtask_model as SubtaskModel
 from . import task_model as TaskModel
 
 
@@ -79,7 +80,14 @@ async def update_task(
 
 
 async def delete_task(session: AsyncSession, task_id: int) -> None:
-    task = await get_task(session, task_id)
-
-    await session.delete(task)
+    await session.execute(
+        delete(SubtaskModel.SubtaskEntity).where(
+            SubtaskModel.SubtaskEntity.id_task == task_id
+        )
+    )
+    await session.execute(
+        delete(TaskModel.TaskEntity).where(
+            TaskModel.TaskEntity.id_task == task_id
+        )
+    )
     await session.commit()

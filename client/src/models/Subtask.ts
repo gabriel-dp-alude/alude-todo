@@ -1,7 +1,7 @@
-import { flow, Instance, SnapshotOrInstance, SnapshotOut, types } from "mobx-state-tree";
+import { flow, Instance, types } from "mobx-state-tree";
 import { apiRequest } from "../utils/api";
 
-const SubtaskModel = types
+export const SubtaskModel = types
   .model("Subtask", {
     id_subtask: types.identifierNumber,
     id_task: types.integer,
@@ -35,9 +35,4 @@ const SubtaskModel = types
     return { toggle };
   });
 
-type Subtask = SnapshotOrInstance<typeof SubtaskModel>;
-type SubtaskSnapshot = SnapshotOut<typeof SubtaskModel>;
-type SubtaskInstance = Instance<typeof SubtaskModel>;
-
-export { SubtaskModel };
-export type { Subtask, SubtaskInstance, SubtaskSnapshot };
+export type SubtaskInstance = Instance<typeof SubtaskModel>;

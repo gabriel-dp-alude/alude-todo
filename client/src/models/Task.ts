@@ -1,10 +1,10 @@
-import { flow, Instance, SnapshotOrInstance, SnapshotOut, types } from "mobx-state-tree";
+import { cast, flow, Instance, types } from "mobx-state-tree";
 
-import { ISODateTime } from "./_customTypes";
-import { Subtask, SubtaskModel } from "./Subtask";
 import { apiRequest } from "../utils/api";
+import { ISODateTime } from "./_customTypes";
+import { SubtaskModel, SubtaskInstance } from "./Subtask";
 
-const TaskModel = types
+export const TaskModel = types
   .model("Task", {
     id_task: types.identifierNumber,
     title: types.string,
@@ -25,8 +25,8 @@ const TaskModel = types
       self.done = done;
     },
   }))
-  .actions((self) => {
-    const toggle = flow(function* toggle() {
+  .actions((self) => ({
+    toggle: flow(function* toggle() {
       const newState = !self.done;
       self.done = newState;
       yield apiRequest(
@@ -43,20 +43,20 @@ const TaskModel = types
           },
         },
       );
-    });
-    const addSubtask = flow(function* addSubtask(title: string) {
-      const subtask: Subtask = yield apiRequest<Subtask>(`/tasks/${self.id_task}/subtasks`, {
+    }),
+    addSubtask: flow(function* addSubtask(title: string) {
+      const subtask: SubtaskInstance = yield apiRequest<SubtaskInstance>(`/tasks/${self.id_task}/subtasks`, {
         method: "POST",
         body: { title },
       });
       self.subtasks.push(subtask);
-    });
-    return { toggle, addSubtask };
-  });
+    }),
+    removeSubtask: flow(function* removeSubtask(id_subtask) {
+      const subtask = self.subtasks.find((s) => s.id_subtask === id_subtask);
+      if (!subtask) return;
+      yield apiRequest(`/tasks/${self.id_task}/subtasks/${subtask.id_subtask}`, { method: "DELETE" });
+      self.subtasks = cast(self.subtasks.filter((s) => s.id_subtask !== subtask.id_subtask));
+    }),
+  }));
 
-type Task = SnapshotOrInstance<typeof TaskModel>;
-type TaskSnapshot = SnapshotOut<typeof TaskModel>;
-type TaskInstance = Instance<typeof TaskModel>;
-
-export { TaskModel };
-export type { Task, TaskSnapshot, TaskInstance };
+export type TaskInstance = Instance<typeof TaskModel>;

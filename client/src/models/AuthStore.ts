@@ -1,11 +1,11 @@
 import { types, flow, Instance } from "mobx-state-tree";
 
 import { apiRequest } from "../utils/api";
-import { User, UserInstance } from "./User";
+import { UserModel, UserInstance } from "./User";
 
 export const AuthStore = types
   .model("AuthStore", {
-    user: types.maybe(User),
+    user: types.maybe(UserModel),
     isLoading: false,
     error: types.maybe(types.string),
   })

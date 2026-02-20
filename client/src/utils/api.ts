@@ -24,6 +24,7 @@ export async function apiRequest<T>(
       const message = await response.text();
       throw new Error(message || "Request failed");
     }
+    if (response.status === 204) return true as T;
 
     const data: T = await response.json();
     return data;

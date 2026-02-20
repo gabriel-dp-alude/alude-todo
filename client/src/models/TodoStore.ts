@@ -1,6 +1,6 @@
 import { cast, flow, Instance, types } from "mobx-state-tree";
 
-import { Task, TaskModel } from "./Task";
+import { TaskInstance, TaskModel } from "./Task";
 import { apiRequest } from "../utils/api";
 
 export const TodoStore = types
@@ -26,7 +26,7 @@ export const TodoStore = types
     load: flow(function* load() {
       self.isLoading = true;
       self.error = null;
-      const tasks: Task[] = yield apiRequest<Task[]>(
+      const tasks: TaskInstance[] = yield apiRequest<TaskInstance[]>(
         `/tasks`,
         {},
         {
@@ -38,8 +38,8 @@ export const TodoStore = types
       self.tasks = cast(tasks ?? []);
       self.isLoading = false;
     }),
-    addTask: flow(function* load(title: string) {
-      const task: Task = yield apiRequest<Task>(
+    addTask: flow(function* addTask(title: string) {
+      const task: TaskInstance = yield apiRequest<TaskInstance>(
         `/tasks`,
         {
           method: "POST",
@@ -54,6 +54,12 @@ export const TodoStore = types
         },
       );
       self.tasks.unshift(task);
+    }),
+    removeTask: flow(function* removeTask(id_task: number) {
+      const task = self.tasks.find((t) => t.id_task === id_task);
+      if (!task) return;
+      yield apiRequest(`/tasks/${task.id_task}`, { method: "DELETE" });
+      self.tasks = cast(self.tasks.filter((t) => t.id_task !== task.id_task));
     }),
   }));
 
