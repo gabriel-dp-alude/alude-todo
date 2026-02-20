@@ -1,7 +1,9 @@
+import { Home } from "./pages/Home";
+
 export default function App() {
   return (
     <div>
-      <p>gabriel-dp</p>
+      <Home />
     </div>
   );
 }
