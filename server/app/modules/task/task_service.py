@@ -24,9 +24,9 @@ async def create_task(
 
     session.add(task)
     await session.commit()
-    await session.refresh(task)
 
-    return task
+    new_task = await get_task(session, task.id_task)
+    return new_task
 
 
 async def list_user_tasks(session: AsyncSession) -> list[TaskModel.TaskEntity]:

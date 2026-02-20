@@ -1,47 +1,40 @@
 import { useEffect, useRef } from "react";
+import { useNavigate } from "react-router";
 import { observer } from "mobx-react-lite";
 
-import { useStore } from "../../models/Store";
+import { useTodoStore } from "../../models/TodoStore";
+import { useAuthStore } from "../../models/AuthStore";
 import { TaskCard } from "../../components/TaskCard";
-import { apiRequest } from "../../utils/api";
 
 export const Home = observer(() => {
-  const store = useStore();
+  const todoStore = useTodoStore();
+  const authStore = useAuthStore();
+  const navigate = useNavigate();
   const titleInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // TODO: Temporary auth while login is not finished
-    async function loginAndLoad() {
-      await apiRequest(`/auth/login`, {
-        method: "POST",
-        body: {
-          username: "rafael",
-          password: "12345678",
-        },
-      });
-      store.load();
-    }
-    loginAndLoad();
-  }, [store]);
+    if (!authStore.isAuthenticated) navigate("/auth");
+    todoStore.load();
+  }, [authStore, todoStore, navigate]);
 
   async function handleAddButton() {
     if (!titleInputRef.current) return;
     const title = titleInputRef.current.value;
-    await store.addTask(title);
+    await todoStore.addTask(title);
     titleInputRef.current.value = "";
   }
 
   return (
     <div>
-      {store.isLoading && "Loading..."}
-      {store.error}
+      {todoStore.isLoading && "Loading..."}
+      {todoStore.error}
       <form>
         <input type="text" ref={titleInputRef} />
         <button type="button" onClick={handleAddButton}>
-          Add
+          Add Task
         </button>
       </form>
-      {store.tasks.map((t) => (
+      {todoStore.tasks.map((t) => (
         <TaskCard key={t.id_task} task={t} />
       ))}
     </div>

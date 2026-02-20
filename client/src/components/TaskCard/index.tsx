@@ -28,8 +28,11 @@ export const TaskCard = observer(({ task }: TaskCardI) => {
         <button onClick={handleAddSubtask}>Add Subtask</button>
       </div>
       <div>
-        {task.subtasks.map((s) => (
-          <p>- {s.title}</p>
+        {task.subtasks.map((subtask) => (
+          <div key={subtask.id_subtask} style={{ display: "flex", justifyContent: "space-between" }}>
+            <p>- {subtask.title}</p>
+            <input type="checkbox" onChange={subtask.toggle} checked={subtask.done} />
+          </div>
         ))}
       </div>
     </div>

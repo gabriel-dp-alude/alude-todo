@@ -22,8 +22,8 @@ export const TodoStore = types
       self.error = error;
     },
   }))
-  .actions((self) => {
-    const load = flow(function* load() {
+  .actions((self) => ({
+    load: flow(function* load() {
       self.isLoading = true;
       self.error = null;
       const tasks: Task[] = yield apiRequest<Task[]>(
@@ -37,8 +37,8 @@ export const TodoStore = types
       );
       self.tasks = cast(tasks ?? []);
       self.isLoading = false;
-    });
-    const addTask = flow(function* load(title: string) {
+    }),
+    addTask: flow(function* load(title: string) {
       const task: Task = yield apiRequest<Task>(
         `/tasks`,
         {
@@ -53,19 +53,18 @@ export const TodoStore = types
           },
         },
       );
-      self.tasks.push(task);
-    });
-    return { load, addTask };
-  });
+      self.tasks.unshift(task);
+    }),
+  }));
 
 type TodoStoreInstance = Instance<typeof TodoStore>;
 
-let todoStore: TodoStoreInstance;
-export function useStore(): TodoStoreInstance {
-  if (!todoStore) {
-    todoStore = TodoStore.create({
+let store: TodoStoreInstance;
+export function useTodoStore(): TodoStoreInstance {
+  if (!store) {
+    store = TodoStore.create({
       tasks: [],
     });
   }
-  return todoStore;
+  return store;
 }

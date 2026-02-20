@@ -1,6 +1,6 @@
 import { flow, Instance, SnapshotOrInstance, SnapshotOut, types } from "mobx-state-tree";
 
-import { ISODateTime } from "./customTypes";
+import { ISODateTime } from "./_customTypes";
 import { Subtask, SubtaskModel } from "./Subtask";
 import { apiRequest } from "../utils/api";
 

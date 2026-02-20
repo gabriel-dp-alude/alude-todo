@@ -3,6 +3,7 @@ from quart_schema import tag, tag_blueprint, validate_request, validate_response
 
 from app.utils.database import AsyncSessionLocal
 from app.utils.auth import login_required, hash_token
+from app.modules.user import user_model as UserModel
 from . import auth_service as AuthService
 from . import auth_model as AuthModel
 
@@ -20,9 +21,8 @@ async def login_route(data: AuthModel.Login):
         )
 
         response = await make_response(
-            jsonify({"message": f"Welcome, {user.username}"})
+            UserModel.UserRead.model_validate(user).model_dump()
         )
-
         response.set_cookie(
             "session",
             token,
@@ -31,7 +31,6 @@ async def login_route(data: AuthModel.Login):
             samesite="Strict",
             max_age=7 * 24 * 60 * 60,
         )
-
         return response
 
 

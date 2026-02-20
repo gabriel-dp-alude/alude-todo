@@ -1,16 +1,39 @@
-import { Instance, SnapshotOrInstance, SnapshotOut, types } from "mobx-state-tree";
+import { flow, Instance, SnapshotOrInstance, SnapshotOut, types } from "mobx-state-tree";
+import { apiRequest } from "../utils/api";
 
 const SubtaskModel = types
   .model("Subtask", {
     id_subtask: types.identifierNumber,
+    id_task: types.integer,
     title: types.string,
     done: types.boolean,
   })
   .actions((self) => ({
-    toggle() {
-      self.done = !self.done;
+    setDone(done: boolean) {
+      self.done = done;
     },
-  }));
+  }))
+  .actions((self) => {
+    const toggle = flow(function* toggle() {
+      const newState = !self.done;
+      self.done = newState;
+      yield apiRequest(
+        `/tasks/${self.id_task}/subtasks/${self.id_subtask}`,
+        {
+          method: "PATCH",
+          body: {
+            done: newState,
+          },
+        },
+        {
+          onFail: (e) => {
+            self.setDone(!newState);
+          },
+        },
+      );
+    });
+    return { toggle };
+  });
 
 type Subtask = SnapshotOrInstance<typeof SubtaskModel>;
 type SubtaskSnapshot = SnapshotOut<typeof SubtaskModel>;
