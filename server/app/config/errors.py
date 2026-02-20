@@ -1,3 +1,4 @@
+from http.client import HTTPException
 from quart import Quart, jsonify
 from quart_schema.validation import RequestSchemaValidationError
 
@@ -13,15 +14,6 @@ def configure_exception_handler(app: Quart):
         }
         return jsonify(response), error.status_code
 
-    @app.errorhandler(Exception)
-    async def handle_unexpected_error(error: Exception):
-        response = {
-            "error": "internal_server_error",
-            "message": "Something went wrong",
-            "details": error,
-        }
-        return jsonify(response), 500
-
     @app.errorhandler(RequestSchemaValidationError)
     async def handle_validation_error(error: RequestSchemaValidationError):
         response = {
@@ -30,3 +22,20 @@ def configure_exception_handler(app: Quart):
             "details": error.validation_error.errors(),
         }
         return jsonify(response), 400
+
+    @app.errorhandler(HTTPException)
+    async def handle_http_error(error):
+        response = {
+            "error": error.name,
+            "message": error.description,
+        }
+        return jsonify(response), error.code
+
+    @app.errorhandler(Exception)
+    async def handle_unexpected_error(error: Exception):
+        response = {
+            "error": "internal_server_error",
+            "message": "Something went wrong",
+            "details": error,
+        }
+        return jsonify(response), 500
