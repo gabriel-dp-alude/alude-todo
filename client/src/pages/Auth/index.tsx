@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import { observer } from "mobx-react-lite";
 
@@ -14,9 +14,15 @@ export const Auth = observer(() => {
     if (!usernameInputRef.current || !passwordInputRef.current) return;
     const username = usernameInputRef.current.value;
     const password = passwordInputRef.current.value;
-    const result = await authStore.login(username, password);
-    if (result) navigate("/");
+    await authStore.login(username, password);
   }
+
+  useEffect(() => {
+    if (authStore.isAuthenticated) {
+      navigate("/");
+      return;
+    }
+  }, [authStore.isAuthenticated, navigate]);
 
   return (
     <form>

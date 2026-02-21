@@ -2,7 +2,7 @@ from quart import Blueprint
 from quart_schema import tag, validate_request, validate_response, tag_blueprint
 
 from app.utils.database import AsyncSessionLocal
-from app.utils.auth import require_auth
+from app.utils.middlewares import require_auth
 from . import task_model as TaskModel
 from . import task_service as TaskService
 

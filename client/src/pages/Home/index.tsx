@@ -13,9 +13,12 @@ export const Home = observer(() => {
   const titleInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (!authStore.isAuthenticated) navigate("/auth");
+    if (!authStore.isAuthenticated) {
+      navigate("/auth");
+      return;
+    }
     todoStore.load();
-  }, [authStore, todoStore, navigate]);
+  }, [authStore.isAuthenticated, todoStore, navigate]);
 
   async function handleAddButton() {
     if (!titleInputRef.current) return;
@@ -30,6 +33,7 @@ export const Home = observer(() => {
         <p>
           user: {authStore.user?.username} ({authStore.user?.id_user})
         </p>
+        <button onClick={authStore.logout}>logout</button>
         <p>state: {todoStore.isLoading ? "Loading..." : "Ok"}</p>
         <p>error: {todoStore.error || "-"}</p>
       </div>

@@ -21,6 +21,9 @@ export const TaskModel = types
     },
   }))
   .actions((self) => ({
+    setSubtasks(subtasks: SubtaskInstance[]) {
+      self.subtasks = cast(subtasks);
+    },
     setDone(done: boolean) {
       self.done = done;
     },
@@ -45,17 +48,31 @@ export const TaskModel = types
       );
     }),
     addSubtask: flow(function* addSubtask(title: string) {
-      const subtask: SubtaskInstance = yield apiRequest<SubtaskInstance>(`/tasks/${self.id_task}/subtasks`, {
-        method: "POST",
-        body: { title },
-      });
-      self.subtasks.push(subtask);
+      yield apiRequest<SubtaskInstance>(
+        `/tasks/${self.id_task}/subtasks`,
+        {
+          method: "POST",
+          body: { title },
+        },
+        {
+          onSuccess: (data) => {
+            self.setSubtasks([...self.subtasks, data]);
+          },
+        },
+      );
     }),
     removeSubtask: flow(function* removeSubtask(id_subtask) {
       const subtask = self.subtasks.find((s) => s.id_subtask === id_subtask);
       if (!subtask) return;
-      yield apiRequest(`/tasks/${self.id_task}/subtasks/${subtask.id_subtask}`, { method: "DELETE" });
-      self.subtasks = cast(self.subtasks.filter((s) => s.id_subtask !== subtask.id_subtask));
+      yield apiRequest(
+        `/tasks/${self.id_task}/subtasks/${subtask.id_subtask}`,
+        { method: "DELETE" },
+        {
+          onSuccess: (data) => {
+            self.setSubtasks(self.subtasks.filter((s) => s.id_subtask !== subtask.id_subtask));
+          },
+        },
+      );
     }),
   }));
 

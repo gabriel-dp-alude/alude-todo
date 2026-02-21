@@ -18,6 +18,9 @@ export const TodoStore = types
     },
   }))
   .actions((self) => ({
+    setTasks: (tasks: TaskInstance[]) => {
+      self.tasks = cast(tasks);
+    },
     setError: (error: any) => {
       self.error = error;
     },
@@ -26,20 +29,17 @@ export const TodoStore = types
     load: flow(function* load() {
       self.isLoading = true;
       self.error = null;
-      const tasks: TaskInstance[] = yield apiRequest<TaskInstance[]>(
+      yield apiRequest<TaskInstance[]>(
         `/tasks`,
         {},
         {
-          onFail: (e) => {
-            self.setError(e.message);
-          },
+          onSuccess: self.setTasks,
         },
       );
-      self.tasks = cast(tasks ?? []);
       self.isLoading = false;
     }),
     addTask: flow(function* addTask(title: string) {
-      const task: TaskInstance = yield apiRequest<TaskInstance>(
+      yield apiRequest<TaskInstance>(
         `/tasks`,
         {
           method: "POST",
@@ -48,18 +48,24 @@ export const TodoStore = types
           },
         },
         {
-          onFail: (e) => {
-            self.setError(e.message);
+          onSuccess: (data) => {
+            self.setTasks([data, ...self.tasks]);
           },
         },
       );
-      self.tasks.unshift(task);
     }),
     removeTask: flow(function* removeTask(id_task: number) {
       const task = self.tasks.find((t) => t.id_task === id_task);
       if (!task) return;
-      yield apiRequest(`/tasks/${task.id_task}`, { method: "DELETE" });
-      self.tasks = cast(self.tasks.filter((t) => t.id_task !== task.id_task));
+      yield apiRequest(
+        `/tasks/${task.id_task}`,
+        { method: "DELETE" },
+        {
+          onSuccess: (data) => {
+            self.setTasks(self.tasks.filter((t) => t.id_task !== task.id_task));
+          },
+        },
+      );
     }),
   }));
 

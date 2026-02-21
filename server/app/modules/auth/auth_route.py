@@ -1,8 +1,8 @@
-from quart import Blueprint, request, jsonify, make_response
-from quart_schema import tag, tag_blueprint, validate_request, validate_response
+from quart import Blueprint, g, request, jsonify, make_response
+from quart_schema import tag_blueprint, validate_request
 
 from app.utils.database import AsyncSessionLocal
-from app.utils.auth import login_required, hash_token
+from app.utils.middlewares import login_required
 from app.modules.user import user_model as UserModel
 from . import auth_service as AuthService
 from . import auth_model as AuthModel
@@ -16,16 +16,20 @@ tag_blueprint(bp, ["Auth"])
 @validate_request(AuthModel.Login)
 async def login_route(data: AuthModel.Login):
     async with AsyncSessionLocal() as session:
-        token, user = await AuthService.login(
+        access_token, refresh_token, user = await AuthService.login(
             session, data.username, data.password
         )
 
         response = await make_response(
-            UserModel.UserRead.model_validate(user).model_dump()
+            {
+                "access_token": access_token,
+                "user": UserModel.UserRead.model_validate(user).model_dump(),
+            }
         )
+
         response.set_cookie(
-            "session",
-            token,
+            "refresh_token",
+            refresh_token,
             httponly=True,
             secure=True,
             samesite="Strict",
@@ -37,12 +41,43 @@ async def login_route(data: AuthModel.Login):
 @bp.post("/logout")
 @login_required
 async def logout():
-    token = request.cookies.get("session")
-    token_hash = hash_token(token)
-
-    async with AsyncSessionLocal() as session:
-        await AuthService.logout(session, token_hash)
+    refresh_token = request.cookies.get("refresh_token")
+    if refresh_token:
+        async with AsyncSessionLocal() as session:
+            await AuthService.delete_refresh_token(session, refresh_token)
 
     response = await make_response(jsonify({"message": "Logged out"}))
-    response.delete_cookie("session")
+    response.delete_cookie("refresh_token")
     return response
+
+
+@bp.post("/refresh")
+async def refresh_route():
+    refresh_token = request.cookies.get("refresh_token")
+    if not refresh_token:
+        raise AuthService.Unauthorized()
+
+    async with AsyncSessionLocal() as session:
+        new_access_token, new_refresh_token = await AuthService.refresh(
+            session, refresh_token
+        )
+
+        response = await make_response({"access_token": new_access_token})
+
+        response.set_cookie(
+            key="refresh_token",
+            value=new_refresh_token,
+            httponly=True,
+            secure=True,
+            samesite="Strict",
+            max_age=7 * 24 * 60 * 60,
+        )
+
+        return response
+
+
+@bp.get("/me")
+@login_required
+async def me_route():
+    user = g.current_user
+    return UserModel.UserRead.model_validate(user).model_dump()

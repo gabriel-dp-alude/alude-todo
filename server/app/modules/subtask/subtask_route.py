@@ -3,7 +3,7 @@ from quart_schema import validate_request, validate_response, tag_blueprint
 
 
 from app.utils.database import AsyncSessionLocal
-from app.utils.auth import require_auth
+from app.utils.middlewares import require_auth
 from . import subtask_model as SubtaskModel
 from . import subtask_service as SubtaskService
 

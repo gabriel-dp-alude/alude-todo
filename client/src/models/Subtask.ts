@@ -13,8 +13,8 @@ export const SubtaskModel = types
       self.done = done;
     },
   }))
-  .actions((self) => {
-    const toggle = flow(function* toggle() {
+  .actions((self) => ({
+    toggle: flow(function* toggle() {
       const newState = !self.done;
       self.done = newState;
       yield apiRequest(
@@ -31,8 +31,7 @@ export const SubtaskModel = types
           },
         },
       );
-    });
-    return { toggle };
-  });
+    }),
+  }));
 
 export type SubtaskInstance = Instance<typeof SubtaskModel>;

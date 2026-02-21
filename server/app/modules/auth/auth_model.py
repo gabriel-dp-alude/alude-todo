@@ -9,6 +9,7 @@ from app.modules.user.user_model import UserEntity
 
 class Session(Base):
     __tablename__ = "sessions"
+    __mapper_args__ = {"confirm_deleted_rows": False}
 
     id_session: Mapped[int] = mapped_column(primary_key=True)
 

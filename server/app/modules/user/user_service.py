@@ -86,3 +86,17 @@ async def delete_user(session: AsyncSession, user_id: int) -> None:
     user = await get_user(session, user_id)
     await session.delete(user)
     await session.commit()
+
+
+async def get_user_by_username(session: AsyncSession, username: str):
+    result = await session.execute(
+        select(UserModel.UserEntity).where(
+            UserModel.UserEntity.username == username
+        )
+    )
+    user = result.scalar_one_or_none()
+
+    if not user:
+        raise UserNotFound()
+
+    return user

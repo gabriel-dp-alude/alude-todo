@@ -1,36 +1,37 @@
 from quart import Quart, g, request
-from sqlalchemy import select
-from datetime import datetime
 
 from app.utils.database import AsyncSessionLocal
-from app.utils.auth import hash_token
-from app.modules.user.user_model import UserEntity
-from app.modules.auth.auth_model import Session
+from app.utils.auth import Unauthorized, decode_access_token
+from app.modules.user import user_model as UserModel
+
+
+def get_bearer_token():
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        raise Unauthorized("Missing or invalid Authorization header")
+
+    return auth_header.split(" ")[1]
+
+
+async def get_current_user(session, token):
+    payload = decode_access_token(token)
+    id_user = payload["sub"]
+
+    user = await session.get(UserModel.UserEntity, int(id_user))
+    if not user:
+        raise Unauthorized("User not found")
+
+    return user
 
 
 def configure_session_middleware(app: Quart):
     @app.before_request
-    async def load_user():
-        token = request.cookies.get("session")
-
-        if not token:
-            g.current_user = None
-            return
-
-        token_hash = hash_token(token)
-
+    async def attach_current_user():
+        g.current_user = None
         async with AsyncSessionLocal() as session:
-            result = await session.execute(
-                select(Session, UserEntity)
-                .join(UserEntity)
-                .where(Session.session_token_hash == token_hash)
-                .where(Session.expires_at > datetime.utcnow())
-            )
-
-            row = result.first()
-
-            if not row:
-                g.current_user = None
+            try:
+                token = get_bearer_token()
+                g.current_user = await get_current_user(session, token)
+            except Unauthorized:
+                # Having a session is not required for all routes
                 return
-
-            g.current_user = row.UserEntity
