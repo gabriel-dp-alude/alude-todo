@@ -1,8 +1,9 @@
+from quart import g
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.utils.auth import generate_password_hash
+from app.utils.auth import Forbidden, generate_password_hash
 from app.utils.exceptions import APIException
 from . import user_model as UserModel
 
@@ -65,6 +66,10 @@ async def get_user(session: AsyncSession, user_id: int) -> UserModel.UserEntity:
 async def update_user(
     session: AsyncSession, user_id: int, data: UserModel.UserUpdate
 ) -> UserModel.UserEntity:
+    current_id_user = g.current_user.id_user
+    if current_id_user != user_id:
+        raise Forbidden("You cannot modify data from other users")
+
     user = await get_user(session, user_id)
 
     if data.username is not None:
@@ -83,6 +88,10 @@ async def update_user(
 
 
 async def delete_user(session: AsyncSession, user_id: int) -> None:
+    current_id_user = g.current_user.id_user
+    if current_id_user != user_id:
+        raise Forbidden("You cannot delete other users")
+
     user = await get_user(session, user_id)
     await session.delete(user)
     await session.commit()

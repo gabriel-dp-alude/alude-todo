@@ -16,6 +16,14 @@ class Unauthorized(APIException):
         super().__init__(message)
 
 
+class Forbidden(APIException):
+    status_code = 403
+    error_code = "forbidden"
+
+    def __init__(self, message: str = "Forbidden"):
+        super().__init__(message)
+
+
 # PASSWORD management
 def generate_password_hash(password: str) -> str:
     return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()

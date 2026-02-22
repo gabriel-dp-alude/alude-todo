@@ -1,7 +1,8 @@
-from quart import Blueprint, request
+from quart import Blueprint
 from quart_schema import validate_request, validate_response, tag_blueprint
 
 from app.utils.database import AsyncSessionLocal
+from app.utils.middlewares import login_required
 from . import user_service as UserService
 from . import user_model as UserModel
 
@@ -12,7 +13,7 @@ tag_blueprint(bp, ["Users"])
 
 @bp.post("/")
 @validate_request(UserModel.UserCreate)
-# @validate_response(UserModel.UserRead, 201)
+@validate_response(UserModel.UserRead, 201)
 async def create_user(data: UserModel.UserCreate):
     async with AsyncSessionLocal() as session:
         user = await UserService.create_user(session, data)
@@ -40,6 +41,7 @@ async def get_user(user_id: int):
 @bp.patch("/<int:user_id>")
 @validate_request(UserModel.UserUpdate)
 @validate_response(UserModel.UserRead, 200)
+@login_required
 async def update_user(user_id: int, data: UserModel.UserUpdate):
     async with AsyncSessionLocal() as session:
         user = await UserService.update_user(session, user_id, data)
@@ -47,6 +49,7 @@ async def update_user(user_id: int, data: UserModel.UserUpdate):
 
 
 @bp.delete("/<int:user_id>")
+@login_required
 async def delete_user(user_id: int):
     async with AsyncSessionLocal() as session:
         await UserService.delete_user(session, user_id)
