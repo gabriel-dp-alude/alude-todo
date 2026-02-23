@@ -29,7 +29,6 @@ export const AuthStore = types
   }))
   .actions((self) => ({
     login: flow(function* (username: string, password: string) {
-      self.error = undefined;
       self.isLoading = true;
       yield apiRequest<LoginInstance>(
         "/auth/login",
@@ -42,7 +41,6 @@ export const AuthStore = types
         },
       );
       self.isLoading = false;
-      return !self.error;
     }),
 
     logout: flow(function* () {
@@ -64,6 +62,7 @@ export const AuthStore = types
     }),
 
     getUserData: flow(function* getUserData() {
+      if (!self.isAuthenticated) return;
       yield apiRequest<UserInstance>(
         "/auth/me",
         {},

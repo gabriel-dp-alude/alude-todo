@@ -11,6 +11,7 @@ export const TaskModel = types
     done: types.boolean,
     subtasks: types.array(SubtaskModel),
     created_at: ISODateTime,
+    isLoadingSubtasks: false,
   })
   .views((self) => ({
     get isFullyCompleted() {
@@ -47,7 +48,9 @@ export const TaskModel = types
         },
       );
     }),
+
     addSubtask: flow(function* addSubtask(title: string) {
+      self.isLoadingSubtasks = true;
       yield apiRequest<SubtaskInstance>(
         `/tasks/${self.id_task}/subtasks`,
         {
@@ -60,8 +63,11 @@ export const TaskModel = types
           },
         },
       );
+      self.isLoadingSubtasks = false;
     }),
+
     removeSubtask: flow(function* removeSubtask(id_subtask) {
+      self.isLoadingSubtasks = true;
       const subtask = self.subtasks.find((s) => s.id_subtask === id_subtask);
       if (!subtask) return;
       yield apiRequest(
@@ -73,6 +79,7 @@ export const TaskModel = types
           },
         },
       );
+      self.isLoadingSubtasks = false;
     }),
   }));
 

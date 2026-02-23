@@ -38,7 +38,9 @@ export const TodoStore = types
       );
       self.isLoading = false;
     }),
+
     addTask: flow(function* addTask(title: string) {
+      self.isLoading = true;
       yield apiRequest<TaskInstance>(
         `/tasks`,
         {
@@ -53,8 +55,11 @@ export const TodoStore = types
           },
         },
       );
+      self.isLoading = false;
     }),
+
     removeTask: flow(function* removeTask(id_task: number) {
+      self.isLoading = true;
       const task = self.tasks.find((t) => t.id_task === id_task);
       if (!task) return;
       yield apiRequest(
@@ -66,6 +71,7 @@ export const TodoStore = types
           },
         },
       );
+      self.isLoading = false;
     }),
   }));
 
