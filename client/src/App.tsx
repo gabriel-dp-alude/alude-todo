@@ -16,6 +16,9 @@ export const App = observer(() => {
   return (
     <ConfigProvider
       theme={{
+        token: {
+          colorPrimary: "#f57829",
+        },
         components: {
           List: {
             emptyTextPadding: 0,

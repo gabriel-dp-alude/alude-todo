@@ -1,9 +1,11 @@
 import { observer } from "mobx-react-lite";
-import { Button, Card, Checkbox, Divider, Form, Input, List, Space, Typography } from "antd";
-import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
+import { Button, Card, Checkbox, Divider, Form, Input, List, Space } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 
 import { TaskInstance } from "../../models/Task";
 import { useTodoStore } from "../../models/TodoStore";
+import { EditableText } from "../EditableText";
+import { SubtaskRow } from "./SubtaskRow";
 
 interface TaskCardI {
   task: TaskInstance;
@@ -27,15 +29,15 @@ export const TaskCard = observer(({ task }: TaskCardI) => {
           justifyContent: "space-between",
           alignItems: "center",
         }}>
-        <Typography.Text strong delete={task.done} style={{ fontSize: 16 }}>
-          {task.title}
-        </Typography.Text>
-
-        <div>
-          <Button danger icon={<DeleteOutlined />} onClick={() => todoStore.removeTask(task.id_task)} size="small" />
-          <Divider orientation="vertical" />
-          <Checkbox checked={task.done} onChange={task.toggle} />
-        </div>
+        <EditableText
+          text={task.title}
+          update={task.rename}
+          remove={() => todoStore.removeTask(task.id_task)}
+          strong
+          delete={task.done}
+          style={{ fontSize: 16 }}
+        />
+        <Checkbox checked={task.done} onChange={task.toggle} disabled={task.isLoading} />
       </div>
 
       <Divider style={{ margin: "12px 0" }} />
@@ -52,22 +54,7 @@ export const TaskCard = observer(({ task }: TaskCardI) => {
         dataSource={task.subtasks.slice()}
         locale={{ emptyText: " " }}
         loading={task.isLoadingSubtasks}
-        renderItem={(subtask) => (
-          <List.Item
-            key={subtask.id_subtask}
-            style={{ padding: "0.5rem 0 0.5rem 1rem" }}
-            actions={[
-              <Button
-                danger
-                size="small"
-                onClick={() => task.removeSubtask(subtask.id_subtask)}
-                icon={<DeleteOutlined />}
-              />,
-              <Checkbox checked={subtask.done} />,
-            ]}>
-            <Typography.Text delete={subtask.done}>{subtask.title}</Typography.Text>
-          </List.Item>
-        )}
+        renderItem={(subtask) => <SubtaskRow subtask={subtask} task={task} />}
         size="small"
       />
     </Card>

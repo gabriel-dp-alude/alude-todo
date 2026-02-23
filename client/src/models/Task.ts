@@ -11,6 +11,7 @@ export const TaskModel = types
     done: types.boolean,
     subtasks: types.array(SubtaskModel),
     created_at: ISODateTime,
+    isLoading: false,
     isLoadingSubtasks: false,
   })
   .views((self) => ({
@@ -25,14 +26,18 @@ export const TaskModel = types
     setSubtasks(subtasks: SubtaskInstance[]) {
       self.subtasks = cast(subtasks);
     },
+    setTitle(title: string) {
+      self.title = title;
+    },
     setDone(done: boolean) {
       self.done = done;
     },
   }))
   .actions((self) => ({
-    toggle: flow(function* toggle() {
+    toggle: flow(function* () {
       const newState = !self.done;
       self.done = newState;
+      self.isLoading = true;
       yield apiRequest(
         `/tasks/${self.id_task}`,
         {
@@ -47,9 +52,31 @@ export const TaskModel = types
           },
         },
       );
+      self.isLoading = false;
     }),
 
-    addSubtask: flow(function* addSubtask(title: string) {
+    rename: flow(function* (title: string) {
+      const original = self.title;
+      self.title = title;
+      self.isLoading = true;
+      yield apiRequest(
+        `/tasks/${self.id_task}`,
+        {
+          method: "PATCH",
+          body: {
+            title: title,
+          },
+        },
+        {
+          onFail: (e) => {
+            self.setTitle(original);
+          },
+        },
+      );
+      self.isLoading = false;
+    }),
+
+    addSubtask: flow(function* (title: string) {
       self.isLoadingSubtasks = true;
       yield apiRequest<SubtaskInstance>(
         `/tasks/${self.id_task}/subtasks`,

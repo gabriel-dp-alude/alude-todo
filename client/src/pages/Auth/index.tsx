@@ -37,7 +37,7 @@ export const Auth = observer(() => {
           Login
         </Typography.Title>
 
-        <Form name="login_form" layout="vertical" onFinish={attemptLogin} autoComplete="off">
+        <Form name="login_form" layout="vertical" onFinish={attemptLogin} autoComplete="off" requiredMark={false}>
           <Form.Item
             label="Username"
             name="username"

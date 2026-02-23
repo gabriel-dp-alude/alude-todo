@@ -9,12 +9,15 @@ export const SubtaskModel = types
     done: types.boolean,
   })
   .actions((self) => ({
+    setTitle(title: string) {
+      self.title = title;
+    },
     setDone(done: boolean) {
       self.done = done;
     },
   }))
   .actions((self) => ({
-    toggle: flow(function* toggle() {
+    toggle: flow(function* () {
       const newState = !self.done;
       self.done = newState;
       yield apiRequest(
@@ -28,6 +31,25 @@ export const SubtaskModel = types
         {
           onFail: (e) => {
             self.setDone(!newState);
+          },
+        },
+      );
+    }),
+
+    rename: flow(function* (newTitle: string) {
+      const original = self.title;
+      self.title = newTitle;
+      yield apiRequest(
+        `/tasks/${self.id_task}/subtasks/${self.id_subtask}`,
+        {
+          method: "PATCH",
+          body: {
+            title: newTitle,
+          },
+        },
+        {
+          onFail: (e) => {
+            self.setTitle(original);
           },
         },
       );
