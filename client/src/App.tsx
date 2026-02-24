@@ -1,9 +1,8 @@
 import { useEffect } from "react";
 import { observer } from "mobx-react-lite";
-import { ConfigProvider } from "antd";
-import "antd/dist/reset.css";
 
 import { Router } from "./router";
+import { AntDesignConfig } from "./config/AntDesignConfig";
 import { useAuthStore } from "./models/AuthStore";
 
 export const App = observer(() => {
@@ -13,19 +12,5 @@ export const App = observer(() => {
     authStore.initialize();
   }, [authStore]);
 
-  return (
-    <ConfigProvider
-      theme={{
-        token: {
-          colorPrimary: "#f57829",
-        },
-        components: {
-          List: {
-            emptyTextPadding: 0,
-          },
-        },
-      }}>
-      {authStore.isInitializing ? <></> : <Router />}
-    </ConfigProvider>
-  );
+  return <AntDesignConfig>{authStore.isInitializing ? <></> : <Router />}</AntDesignConfig>;
 });
