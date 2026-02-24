@@ -1,3 +1,4 @@
+import { cast } from "mobx-state-tree";
 import { observer } from "mobx-react-lite";
 import { Button, Card, Checkbox, Divider, Form, Input, List, Space } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
@@ -16,8 +17,8 @@ export const TaskCard = observer(({ task }: TaskCardI) => {
   const [addSubtaskForm] = Form.useForm();
 
   async function addSubtask(values: { title: string }) {
-    const { title } = values;
-    await task.addSubtask(title);
+    const title = values.title?.trim();
+    if (title) await task.addSubtask(title);
     addSubtaskForm.resetFields();
   }
 
@@ -50,11 +51,12 @@ export const TaskCard = observer(({ task }: TaskCardI) => {
           <Button htmlType="submit" icon={<PlusOutlined />} />
         </Space.Compact>
       </Form>
+
       <List
-        dataSource={task.subtasks.slice()}
+        dataSource={task.subtasks}
         locale={{ emptyText: " " }}
         loading={task.isLoadingSubtasks}
-        renderItem={(subtask) => <SubtaskRow subtask={subtask} task={task} />}
+        renderItem={(subtask) => <SubtaskRow key={subtask.id_subtask} subtask={cast(subtask)} task={task} />}
         size="small"
       />
     </Card>

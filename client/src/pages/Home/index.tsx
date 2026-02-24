@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
+import { cast } from "mobx-state-tree";
 import { observer } from "mobx-react-lite";
 import { Button, Form, Input, List, Space, Typography, Layout, Divider } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
@@ -67,12 +68,12 @@ export const Home = observer(() => {
         </div>
 
         <List
-          dataSource={todoStore.tasks.slice()}
+          dataSource={todoStore.tasks}
           locale={{ emptyText: "No tasks yet" }}
           style={{ width: "100%", paddingTop: "1rem" }}
           renderItem={(task) => (
             <List.Item key={task.id_task} style={{ padding: 0, border: "none" }}>
-              <TaskCard task={task} />
+              <TaskCard task={cast(task)} />
             </List.Item>
           )}
           loading={todoStore.isLoading}
