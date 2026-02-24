@@ -43,6 +43,13 @@ export const AuthStore = types
       self.isLoading = false;
     }),
 
+    register: flow(function* (username: string, password: string) {
+      self.isLoading = true;
+      const result = yield apiRequest<LoginInstance>("/users", { method: "POST", body: { username, password } });
+      self.isLoading = false;
+      return !!result;
+    }),
+
     logout: flow(function* () {
       yield apiRequest("/auth/logout", { method: "POST" });
       self.user = undefined;

@@ -17,7 +17,7 @@ tag_blueprint(bp, ["Users"])
 async def create_user(data: UserModel.UserCreate):
     async with AsyncSessionLocal() as session:
         user = await UserService.create_user(session, data)
-        return UserModel.UserRead.model_validate(user).model_dump(), 400
+        return UserModel.UserRead.model_validate(user).model_dump(), 201
 
 
 @bp.get("/")
